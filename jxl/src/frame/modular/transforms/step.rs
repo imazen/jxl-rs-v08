@@ -383,11 +383,33 @@ impl<'a> SqueezeInputs<'a> {
             .rect(rect.to_byte_rect_sz(storage.sample_size()))
     }
 
-    fn in_next_border(&self) -> Option<RawImageRect<'_>> {
+    fn in_next_border(
+        &self,
+        average: Rect,
+        storage: ModularStorage,
+        vertical: bool,
+    ) -> Option<RawImageRect<'_>> {
         self.in_next_border
             .as_ref()
             .and_then(|g| g.as_ref())
-            .map(|img| img.as_rect())
+            .map(|img| {
+                // The next average can belong to a coarser input grid.
+                // Keep the perpendicular offset of this output tile within
+                // that grid when selecting its neighbor's packed border.
+                let rect = if vertical {
+                    Rect {
+                        origin: (average.origin.0, 0),
+                        size: (average.size.0, 4),
+                    }
+                } else {
+                    Rect {
+                        origin: (0, average.origin.1),
+                        size: (4, average.size.1),
+                    }
+                };
+                img.as_rect()
+                    .rect(rect.to_byte_rect_sz(storage.sample_size()))
+            })
     }
 
     fn out_prev_border(&self) -> Option<RawImageRect<'_>> {
@@ -981,7 +1003,7 @@ impl TransformStepChunk {
                                 )?;
                             }
                             let inputs = info.borrow_inputs(buffers, vertical);
-                            let in_next = inputs.in_next_border();
+                            let in_next = inputs.in_next_border(avg_rect, storage, vertical);
                             let out_prev = inputs.out_prev_border();
                             if vertical {
                                 super::squeeze::do_vsqueeze_step(
@@ -1260,3 +1282,7 @@ impl TransformStepChunk {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "squeeze_border_tests.rs"]
+mod squeeze_border_tests;
