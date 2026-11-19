@@ -5,7 +5,7 @@ from pathlib import Path
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('llvm',type=Path);p.add_argument('archive',type=Path);p.add_argument('output',type=Path)
 p.add_argument('--package',choices=['jxl','zenjxl-decoder'],default='zenjxl-decoder')
-p.add_argument('--kind',choices=['hlg','profile','gray'],default='hlg')
+p.add_argument('--kind',choices=['hlg','profile','gray','border'],default='hlg')
 a=p.parse_args();a.output.mkdir(exist_ok=False)
 identity=json.loads((a.archive/'identity.json').read_text());assert identity['exit_code']==0
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
@@ -21,10 +21,13 @@ relative=a.package+'/src/color/tf.rs'
 names=['hlg_ootf_inner_vec']if a.package=='jxl'else['hlg_ootf_inner_precise','hlg_ootf_inner','hlg_scene_to_display','hlg_display_to_scene']
 if a.kind=='profile':relative='zenjxl-decoder/src/api/inner/mod.rs';names=['set_output_color_profile']
 if a.kind=='gray':relative='jxl/src/frame/modular/transforms/meta_apply.rs';names=['squeeze_grid_propagation']
+if a.kind=='border':relative='jxl/src/frame/modular/transforms/step.rs';names=['in_next_border','next_average_border_call']
 lines=(a.archive/'source'/relative).read_text().splitlines()
 rows=[]
 for name in names:
- if a.kind=='gray':
+ if a.kind=='border' and name=='next_average_border_call':
+  start=next(i for i,line in enumerate(lines)if 'let in_next = inputs.in_next_border(avg_rect, storage, vertical);' in line);end=start
+ elif a.kind=='gray':
   start=next(i for i,line in enumerate(lines)if '// Grid placement belongs to the coded input channels.' in line)
   end=next(i for i in range(start,len(lines))if '.max(buffer_info[buf_in[1]].grid_kind);' in lines[i])
  else:

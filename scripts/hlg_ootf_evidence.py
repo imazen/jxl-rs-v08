@@ -21,9 +21,12 @@ p.add_argument('output', type=Path)
 p.add_argument('--package', choices=['zenjxl-decoder','jxl'], default='zenjxl-decoder')
 p.add_argument('--no-default-features', action='store_true')
 p.add_argument('--expect-failure', action='store_true')
+p.add_argument('--filter', default='hlg_near_unity_', help='explicit libtest selection; default keeps the HLG controls')
 a = p.parse_args()
 root = a.manifest.resolve().parent
 a.output.mkdir(exist_ok=False)
+# Build scripts may be instrumented too; keep their profiles in the archive.
+os.environ['LLVM_PROFILE_FILE'] = str(a.output / 'build-%p-%m.profraw')
 os.utime(root / a.package / 'src/lib.rs', None)
 command = ['cargo', 'test', '--locked', '--manifest-path', str(a.manifest),
            '-p', a.package, '--lib', '--no-run', '--message-format=json']
@@ -43,15 +46,17 @@ sources = sorted({*root.glob('*/src/**/*.rs'), *root.glob('*/Cargo.toml'),
                   root / 'Cargo.toml', root / 'Cargo.lock',
                   *root.glob('*/src/color/hlg_ootf_v012.tsv'),
                   *root.glob('*/src/color/hlg_near_unity_255.jxl.hex'),
-                  *root.glob('*/src/color/hlg_native_fixture.json')})
+                  *root.glob('*/src/color/hlg_native_fixture.json'),
+                  *root.glob('*/src/frame/modular/transforms/squeeze_border_*.jxl.hex'),
+                  *root.glob('*/src/frame/modular/transforms/squeeze_border_*.alpha.rle')})
 rows = []
 for source in sources:
     target = a.output / 'source' / source.relative_to(root)
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, target)
     rows.append(dict(path=str(source.relative_to(root)), sha256=digest(target)))
-run_command = [str(binary), 'hlg_near_unity_', '--nocapture', '--test-threads=1']
-listed=subprocess.check_output([str(binary),'hlg_near_unity_','--list'],text=True,env=dict(os.environ,LLVM_PROFILE_FILE=str(a.output/'probe.profraw')))
+run_command = [str(binary), a.filter, '--nocapture', '--test-threads=1']
+listed=subprocess.check_output([str(binary),a.filter,'--list'],text=True,env=dict(os.environ,LLVM_PROFILE_FILE=str(a.output/'probe.profraw')))
 assert re.search(r'[1-9][0-9]* tests?',listed),listed
 profile=a.output/'test.profraw'
 env=dict(os.environ,LLVM_PROFILE_FILE=str(profile),CARGO_MANIFEST_DIR=str(root/a.package))
@@ -74,6 +79,7 @@ identity['expected_exit_code'] = 101 if a.expect_failure else 0
 identity['executed_tests'] = sum(int(passed)+int(failed) for passed,failed in re.findall(r'test result: (?:ok|FAILED)\. (\d+) passed; (\d+) failed;', (a.output / 'test.log').read_text()))
 assert result != 0 or identity['executed_tests'] > 0, 'zero-test run is not evidence'
 record.write_text(json.dumps(identity, indent=2))
-print(f'HLG regression: actual rc={result}, expected {identity["expected_exit_code"]}; exact ELF {identity["binary_sha256"]}', flush=True)
-assert result == identity['expected_exit_code'], 'unexpected HLG verdict'
+label = 'HLG regression' if a.filter == 'hlg_near_unity_' else 'Decoder regression ' + a.filter
+print(f'{label}: actual rc={result}, expected {identity["expected_exit_code"]}; exact ELF {identity["binary_sha256"]}', flush=True)
+assert result == identity['expected_exit_code'], 'unexpected decoder verdict'
 sys.exit(0)
