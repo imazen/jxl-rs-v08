@@ -47,3 +47,15 @@ The complete-file and component controls pass in default and minimal builds.
 The full library, strict lint/format and platform checks remain in progress.
 The test rendering driver originates in Imazen's jxl-encoder test support and is
 reused under this repository's BSD-3-Clause license.
+
+Selected default/minimal color and mounted XYB tests, strict all-feature
+library/test Clippy and formatting pass. Restoring the old SIMD cutoff fails
+both component and complete-file controls. Exact executable
+`b83e1752a3ffb012c9cd520d65f5b2dc308ac16714da55a29c949fe9f68d31fd`
+and profile
+`4c0c67e99ac34511e343dbe0de368bcda1b9b49e5a4ba10dcd22114c89266d55`
+cover 19/19 mapped kernel regions without diagnostics; the report retains
+observed scalar and AVX instantiations. This does not establish execution on
+other architectures. The unrelated whole-library campaign was interrupted
+and remains incomplete. The dedicated native/i686 CI controls retain their
+own verdicts.

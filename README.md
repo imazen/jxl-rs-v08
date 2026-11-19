@@ -1,5 +1,15 @@
 # JPEG XL in Rust (`jxl-rs`)
 
+This fork pins the jxl 0.8.0 API and source baseline at
+`9a08ca643fd2d01f803dd0be6a5bebc9cc11e597`. It adds
+[near-unity HLG controls](docs/HLG_OOTF_CONTRACT.md) and
+[global inverse-squeeze controls](docs/GLOBAL_SQUEEZE_GRIDS.md) for
+[encoder issue 144](https://github.com/imazen/jxl-encoder/issues/144).
+It is consumed by commit revision; no crate release is made here.
+The browser integration and registry links below describe the upstream project.
+
+[![Pinned decoder controls](https://github.com/imazen/jxl-rs-v08/actions/workflows/hlg-controls.yml/badge.svg)](https://github.com/imazen/jxl-rs-v08/actions/workflows/hlg-controls.yml)
+
 [![CI](https://github.com/libjxl/jxl-rs/actions/workflows/post_merge.yml/badge.svg)](https://github.com/libjxl/jxl-rs/actions/workflows/post_merge.yml)
 [![Crates.io](https://img.shields.io/crates/v/jxl.svg)](https://crates.io/crates/jxl)
 [![Docs.rs](https://docs.rs/jxl/badge.svg)](https://docs.rs/jxl)
