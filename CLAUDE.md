@@ -16,3 +16,8 @@ HF from output size alone. Both tall/transposed retained fixtures panic before
 repair and recover every gray/alpha byte afterward in default/minimal builds.
 [Grid contract](docs/GLOBAL_SQUEEZE_GRIDS.md). Mutation/regions/platforms remain
 separately qualified; the interrupted full library campaign is incomplete.
+
+Grayscale default/minimal source-code recovery and restored-fault checks pass;
+the instrumented propagation expression covers 5/5 mapped regions without
+diagnostics. Strict all-feature library/test Clippy and format pass. The full
+primary library campaign remains incomplete and platform verdicts are separate.

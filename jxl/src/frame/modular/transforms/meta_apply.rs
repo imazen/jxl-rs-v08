@@ -397,17 +397,12 @@ pub fn make_grids(
             | TransformStep::VSqueeze {
                 buf_in, buf_out, ..
             } => {
-                let mut grid_kind = buffer_info[buf_in[0]]
+                // Grid placement belongs to the coded input channels. An
+                // inverse-squeeze intermediate can grow past one group while
+                // both inputs remain global; it must keep their global grid.
+                buffer_info[*buf_out].grid_kind = buffer_info[buf_in[0]]
                     .grid_kind
                     .max(buffer_info[buf_in[1]].grid_kind);
-                if grid_kind == ModularGridKind::None
-                    && !buffer_info[*buf_out]
-                        .info
-                        .is_meta_or_small(frame_header.group_dim())
-                {
-                    grid_kind = ModularGridKind::Hf;
-                }
-                buffer_info[*buf_out].grid_kind = grid_kind;
             }
             TransformStep::Output { .. } => {
                 unreachable!()
