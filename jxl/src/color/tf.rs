@@ -148,9 +148,11 @@ fn hlg_ootf_inner_vec<D: SimdDescriptor>(
 ) -> [D::F32Vec; 3] {
     let mixed = r.mul_add(lr, g.mul_add(lg, b * lb));
     let mult = crate::util::fast_powf_simd(d, mixed, exp);
-    let mult = D::F32Vec::splat(d, 0.1)
-        .gt(exp.abs())
-        .if_then_else_f32(D::F32Vec::splat(d, 1.0), mult);
+    // Match v0.12 HlgOOTF_Base's closed [-0.01, 0.01] unity deadband.
+    let mult = exp
+        .abs()
+        .gt(D::F32Vec::splat(d, 0.01))
+        .if_then_else_f32(mult, D::F32Vec::splat(d, 1.0));
     [r * mult, g * mult, b * mult]
 }
 
@@ -443,7 +445,7 @@ mod test {
     }
 
     fn hlg_ootf_inner_precise(exp: f64, [lr, lg, lb]: [f32; 3], [sr, sg, sb]: [&mut [f32]; 3]) {
-        if exp.abs() < 0.1 {
+        if exp.abs() <= 0.01 {
             return;
         }
 
@@ -463,7 +465,7 @@ mod test {
     }
 
     fn hlg_ootf_inner(exp: f32, [lr, lg, lb]: [f32; 3], [sr, sg, sb]: [&mut [f32]; 3]) {
-        if exp.abs() < 0.1 {
+        if exp.abs() <= 0.01 {
             return;
         }
 
@@ -896,3 +898,7 @@ mod test {
         });
     }
 }
+
+#[cfg(test)]
+#[path = "hlg_near_unity_tests.rs"]
+mod hlg_near_unity_tests;
