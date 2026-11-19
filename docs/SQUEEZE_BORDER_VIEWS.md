@@ -38,8 +38,16 @@ perpendicular offsets, short extents and absent borders. Default and minimal
 runs pass; strict all-feature library/test/example Clippy and scoped formatting
 pass (`issue144-queue60-v1`,83seconds, peakRSS1.00GiB, minimum available18076MiB).
 These are test-wrapper resource observations, not decoder performance.
-Restored-fault sensitivity, exact region mapping and fresh platform CI remain
-separate qualification steps. No public API, encoded bytes, tolerance or
+Restored horizontal and vertical offset faults both fail their native/component
+regressions at runtime (actual exit101), followed by exact source restoration.
+The completed instrumented run observes20/20 helper regions and6/6 regions at
+its caller, without LLVM mapping diagnostics. ELF SHA256
+`c0c11c7ddae519d89721536b4352585437d43a086cd2d0d3b33f83b2e106d3a8`;
+profile SHA256
+`07553de367fc2cfe0bb7b3460fd9c213a3770eb847fe7eaf46ca2c637fbfb352`.
+The fraction covers this view and call window, not the entire transform
+scheduler, allocation failures or every malformed geometry. The full modular
+module also passes. Fresh platform CI retains its own verdict. No public API, encoded bytes, tolerance or
 established expectation changes.
 
 Supporting records under the encoder issue144 artifact directory:
@@ -48,3 +56,12 @@ Supporting records under the encoder issue144 artifact directory:
 `primary-alpha-q58-*` (fixed complete planes),
 `primary-alpha-q59-{horizontal,vertical}-v1` (native controls), and
 `primary-alpha-fixtures-v1` (text-fixture provenance).
+
+The first new Shuttle wrapper stops at its default one-million-step budget
+before finishing the large planes. The wrapper now uses the existing decoder
+harness's ten-million-step limit; pixel assertions, fixture bytes and ordinary
+execution remain unchanged. Default/minimal Shuttle and the complete ordinary
+default/minimal/lint/format continuation all pass in `issue144-queue63-v1`
+(rc0,123seconds, peakRSS1.04GiB, minimum available18040MiB). The earlier
+budget-limited run remains nonzero. Native five-platform jobs and i686 now
+select the permanent border controls explicitly.

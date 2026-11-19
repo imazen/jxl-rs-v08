@@ -21,3 +21,15 @@ Grayscale default/minimal source-code recovery and restored-fault checks pass;
 the instrumented propagation expression covers 5/5 mapped regions without
 diagnostics. Strict all-feature library/test Clippy and format pass. The full
 primary library campaign remains incomplete and platform verdicts are separate.
+
+The coarser-grid next-average border view is repaired in50c65e45. Original
+native/encoder streams reproduce the same sixteen wrong alpha codes in scalar
+and SIMD builds before the repair; wide storage alone does not repair them.
+Default/minimal complete-plane controls now pass, including both storage widths,
+both rendering pipelines and37-byte chunks. Strict all-feature library/test/
+example lint and formatting pass. Restored horizontal/vertical offset faults both fail at runtime; the exact
+source restores afterward. The completed profile observes20/20 view regions
+and6/6 caller-window regions; broader scheduling/allocator failures are outside
+that fraction. Default/minimal Shuttle and the final ordinary/lint continuation
+pass with the existing full-stream harness's ten-million-step scheduler budget.
+Fresh-platform verdicts remain separate. [Border contract](docs/SQUEEZE_BORDER_VIEWS.md).

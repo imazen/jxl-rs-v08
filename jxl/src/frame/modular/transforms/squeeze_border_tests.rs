@@ -8,11 +8,12 @@ use crate::util::sync::RwLock;
 
 fn run(check: fn()) {
     #[cfg(feature = "shuttle")]
-    shuttle::Runner::new(
-        shuttle::scheduler::RandomScheduler::new(1),
-        Default::default(),
-    )
-    .run(check);
+    {
+        let mut config = shuttle::Config::default();
+        // Match the existing full-stream decoder harness's scheduler budget.
+        config.max_steps = shuttle::MaxSteps::FailAfter(10_000_000);
+        shuttle::Runner::new(shuttle::scheduler::RandomScheduler::new(1), config).run(check);
+    }
     #[cfg(not(feature = "shuttle"))]
     check();
 }

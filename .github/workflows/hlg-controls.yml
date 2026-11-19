@@ -32,6 +32,10 @@ jobs:
         run: |
           cargo test --locked -p jxl --lib hlg_near_unity_ -- --test-threads=1
           cargo test --locked -p jxl --no-default-features --lib hlg_near_unity_ -- --test-threads=1
+          cargo test --locked -p jxl --lib squeeze_next_average_ -- --test-threads=1
+          cargo test --locked -p jxl --no-default-features --lib squeeze_next_average_ -- --test-threads=1
+          cargo test --locked -p jxl --features shuttle --lib squeeze_next_average_ -- --test-threads=1
+          cargo test --locked -p jxl --no-default-features --features shuttle --lib squeeze_next_average_ -- --test-threads=1
           cargo test --locked -p jxl --test global_squeeze_grid -- --test-threads=1
           cargo test --locked -p jxl --no-default-features --test global_squeeze_grid -- --test-threads=1
 
@@ -45,6 +49,7 @@ jobs:
           tool: cross
       - run: |
           cross test --locked -p jxl --no-default-features --lib --target i686-unknown-linux-gnu hlg_near_unity_ -- --test-threads=1
+          cross test --locked -p jxl --no-default-features --lib --target i686-unknown-linux-gnu squeeze_next_average_ -- --test-threads=1
           cross test --locked -p jxl --no-default-features --test global_squeeze_grid --target i686-unknown-linux-gnu -- --test-threads=1
 
   lint:
@@ -70,7 +75,7 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-llvm-cov
-      - run: cargo llvm-cov --locked -p jxl --lib --lcov --output-path hlg.lcov -- hlg_near_unity_
+      - run: cargo llvm-cov --locked -p jxl --lib --lcov --output-path hlg.lcov -- hlg_near_unity_ squeeze_next_average_
       - uses: codecov/codecov-action@v7
         with:
           files: hlg.lcov
