@@ -70,7 +70,7 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-llvm-cov
-      - run: cargo llvm-cov --locked -p jxl --lib hlg_near_unity_ --lcov --output-path hlg.lcov
+      - run: cargo llvm-cov --locked -p jxl --lib --lcov --output-path hlg.lcov -- hlg_near_unity_
       - uses: codecov/codecov-action@v7
         with:
           files: hlg.lcov
