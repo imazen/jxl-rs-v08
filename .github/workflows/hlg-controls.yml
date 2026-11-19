@@ -1,0 +1,82 @@
+name: Pinned decoder controls
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hlg-controls-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_PROFILE_DEV_DEBUG: 0
+  CARGO_PROFILE_TEST_DEBUG: 0
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Default SIMD and minimal decoder controls
+        run: |
+          cargo test --locked -p jxl --lib hlg_near_unity_ -- --test-threads=1
+          cargo test --locked -p jxl --no-default-features --lib hlg_near_unity_ -- --test-threads=1
+          cargo test --locked -p jxl --test global_squeeze_grid -- --test-threads=1
+          cargo test --locked -p jxl --no-default-features --test global_squeeze_grid -- --test-threads=1
+
+  i686:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+      - run: |
+          cross test --locked -p jxl --no-default-features --lib --target i686-unknown-linux-gnu hlg_near_unity_ -- --test-threads=1
+          cross test --locked -p jxl --no-default-features --test global_squeeze_grid --target i686-unknown-linux-gnu -- --test-threads=1
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy,rustfmt
+      - run: cargo clippy --locked -p jxl --all-features --lib --tests -- -D warnings
+      - run: cargo fmt -p jxl --check
+
+  hlg-coverage:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+      - run: cargo llvm-cov --locked -p jxl --lib hlg_near_unity_ --lcov --output-path hlg.lcov
+      - uses: codecov/codecov-action@v7
+        with:
+          files: hlg.lcov
+          flags: hlg-controls
+          use_oidc: true
+      - uses: actions/upload-artifact@v7
+        with:
+          name: hlg-coverage
+          path: hlg.lcov
