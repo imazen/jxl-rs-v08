@@ -769,8 +769,8 @@ impl PatchesDictionary {
 
             let ref_frame = reference_frames[ref_pos.reference].as_ref().unwrap();
             let mut fg = SmallVec::<&[f32], 8>::new();
-            for c in 0..3 {
-                fg.push(&ref_frame.frame[c].row(ref_pos_y)[ref_x0..ref_x1]);
+            for channel in &ref_frame.frame[..3] {
+                fg.push(&channel.row(ref_pos_y)[ref_x0..ref_x1]);
             }
             for i in 0..num_ec {
                 fg.push(&ref_frame.frame[3 + i].row(ref_pos_y)[ref_x0..ref_x1]);

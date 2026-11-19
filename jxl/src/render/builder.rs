@@ -174,15 +174,21 @@ impl<Pipeline: RenderPipeline> RenderPipelineBuilder<Pipeline> {
         for i in (0..self.shared.stages.len()).rev() {
             let stage = &self.shared.stages[i];
             if matches!(stage, Stage::Save(_)) {
-                for c in 0..num_channels {
+                for (c, used) in self.shared.channel_is_used[..num_channels]
+                    .iter_mut()
+                    .enumerate()
+                {
                     if stage.uses_channel(c) {
-                        self.shared.channel_is_used[c] = true;
+                        *used = true;
                     }
                 }
             }
-            for c in 0..num_channels {
+            for (c, used) in self.shared.channel_is_used[..num_channels]
+                .iter()
+                .enumerate()
+            {
                 if stage.uses_channel(c) {
-                    stage_is_used[i] |= self.shared.channel_is_used[c];
+                    stage_is_used[i] |= *used;
                 }
             }
             // For now, mark stages with a shift as used.
